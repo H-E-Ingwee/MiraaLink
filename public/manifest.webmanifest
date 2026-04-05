@@ -1,0 +1,22 @@
+{
+  "name": "MiraaLink Smart Market",
+  "short_name": "MiraaLink",
+  "description": "Trade Miraa smarter, directly, and securely with AI predictions and M-Pesa.",
+  "lang": "en",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#10B981",
+  "background_color": "#F9FAFB",
+  "icons": [
+    {
+      "src": "pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
