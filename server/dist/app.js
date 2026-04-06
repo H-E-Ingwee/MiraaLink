@@ -1,0 +1,27 @@
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import morgan from 'morgan';
+import authRoutes from './routes/auth.js';
+import listingsRoutes from './routes/listings.js';
+import ordersRoutes from './routes/orders.js';
+import walletRoutes from './routes/wallet.js';
+import paymentsRoutes from './routes/payments.js';
+import predictiveRoutes from './routes/predictive.js';
+dotenv.config();
+const app = express();
+const origin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:4173';
+app.use(cors({ origin, credentials: true }));
+app.use(express.json());
+app.use(morgan('tiny'));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+app.use('/api/auth', authRoutes);
+app.use('/api/listings', listingsRoutes);
+app.use('/api/orders', ordersRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/payments', paymentsRoutes);
+app.use('/api/predictive', predictiveRoutes);
+app.use((req, res) => {
+    res.status(404).json({ error: 'Not found' });
+});
+export default app;
