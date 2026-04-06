@@ -1,177 +1,176 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Phone, KeyRound, User, ShoppingCart, Settings } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { UserRole } from '../types';
 
-const roles: Array<{ value: UserRole; label: string; description: string }> = [
-  { value: 'FARMER', label: 'Farmer', description: 'Sell produce, post listings, and view price predictions.' },
-  { value: 'BUYER', label: 'Buyer', description: 'Browse market inventory, place orders, and pay with M-Pesa.' }
+const roleCards: Array<{ value: UserRole; label: string; description: string; icon: JSX.Element }> = [
+  {
+    value: 'FARMER',
+    label: 'I am a Farmer',
+    description: 'Sell produce, view price forecasts, and manage harvest listings.',
+    icon: <span className="text-2xl">🌿</span>
+  },
+  {
+    value: 'BUYER',
+    label: 'I am a Buyer',
+    description: 'Browse marketplace listings, lock funds in escrow, and track orders.',
+    icon: <ShoppingCart size={24} />
+  }
 ];
 
 const AuthPage = () => {
   const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [isNewUser, setIsNewUser] = useState(false);
-  const [role, setRole] = useState<UserRole>('FARMER');
+  const [otp, setOtp] = useState(['', '', '', '']);
+  const [step, setStep] = useState<'phone' | 'otp' | 'role'>('phone');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('FARMER');
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
-  const [step, setStep] = useState<'phone' | 'otp' | 'profile'>('phone');
-  const navigate = useNavigate();
   const setUser = useAuthStore((state) => state.setUser);
+  const navigate = useNavigate();
 
   const isPhoneValid = useMemo(() => /^\+?2547\d{8}$/.test(phone), [phone]);
+  const otpValue = otp.join('');
 
-  const submitPhone = () => {
+  const handleSendOtp = () => {
     if (!isPhoneValid) return;
     setStep('otp');
   };
 
-  const submitOtp = () => {
-    if (otp.length < 4) return;
-    if (isNewUser) {
-      setStep('profile');
-      return;
-    }
-
-    const profile = {
-      id: 'user-123',
-      phone,
-      fullName: 'Miraa User',
-      role: 'FARMER' as UserRole,
-      location: 'Meru',
-      language: 'en' as const,
-      isVerified: false
-    };
-    setUser(profile, 'demo-token');
-    navigate('/dashboard');
+  const handleVerifyOtp = () => {
+    if (otpValue.length < 4) return;
+    setStep('role');
   };
 
-  const submitProfile = () => {
+  const handleRoleChoice = () => {
     const profile = {
-      id: 'user-123',
+      id: `user-${Date.now()}`,
       phone,
-      fullName: name || 'New User',
-      role: role ?? 'FARMER',
-      location: location || 'Meru',
+      fullName: name || (selectedRole === 'FARMER' ? 'John Mutisya' : 'Sarah Kendi'),
+      role: selectedRole,
+      location: location || (selectedRole === 'FARMER' ? 'Maua, Meru' : 'Nairobi'),
       language: 'en' as const,
-      isVerified: false
+      isVerified: selectedRole === 'BUYER'
     };
     setUser(profile, 'demo-token');
     navigate('/dashboard');
   };
 
   return (
-    <main className="min-h-screen bg-page px-4 py-6 sm:px-6">
-      <section className="mx-auto max-w-xl rounded-3xl bg-white p-6 shadow-xl ring-1 ring-slate-200">
-        <div className="space-y-6">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-miraa-500">MiraaLink</p>
-            <h1 className="mt-4 text-3xl font-semibold text-slate-900">Login without passwords.</h1>
-            <p className="mt-2 text-sm text-slate-600">Use your phone number and SMS OTP to access the smart market.</p>
+    <main className="min-h-screen bg-emerald-50 px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-md space-y-6">
+        <div className="rounded-[2rem] bg-white p-8 shadow-xl ring-1 ring-slate-200">
+          <div className="text-center">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-600">
+              {step === 'phone' ? <Phone size={28} /> : <KeyRound size={28} />}
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900">{step === 'phone' ? 'Enter Phone Number' : step === 'otp' ? 'Enter SMS Code' : 'How will you use MiraaLink?'}</h1>
+            <p className="mt-3 text-sm text-slate-600">
+              {step === 'phone'
+                ? "We'll send you a secure login code via SMS."
+                : step === 'otp'
+                ? `Code sent to ${phone || 'your phone'}`
+                : 'Choose the role that best matches your MiraaLink purpose.'}
+            </p>
           </div>
 
           {step === 'phone' && (
-            <div className="space-y-4">
-              <label className="block text-sm font-medium text-slate-700">Phone number</label>
-              <input
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                placeholder="+2547XXXXXXXX"
-                className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900 outline-none transition focus:border-miraa-500 focus:ring-2 focus:ring-miraa-100"
-              />
+            <div className="mt-8 space-y-6">
+              <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <span className="text-sm font-semibold text-slate-700">+254</span>
+                <input
+                  type="tel"
+                  value={phone.replace(/^\+254/, '')}
+                  onChange={(event) => setPhone(event.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder="7XX XXX XXX"
+                  className="ml-3 w-full bg-transparent text-lg font-medium text-slate-900 outline-none"
+                />
+              </div>
               <button
-                onClick={submitPhone}
+                onClick={handleSendOtp}
                 disabled={!isPhoneValid}
-                className="w-full rounded-3xl bg-miraa-500 px-4 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-slate-400"
+                className="w-full rounded-3xl bg-emerald-600 px-5 py-4 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
               >
-                Send OTP
+                Send OTP Code
               </button>
-              <div className="text-xs text-slate-500">Valid Kenya phone only, for example +254712345678.</div>
             </div>
           )}
 
           {step === 'otp' && (
-            <div className="space-y-4">
-              <label className="block text-sm font-medium text-slate-700">Enter OTP</label>
-              <input
-                value={otp}
-                onChange={(event) => setOtp(event.target.value)}
-                placeholder="1234"
-                maxLength={4}
-                className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900 outline-none transition focus:border-miraa-500 focus:ring-2 focus:ring-miraa-100"
-              />
-              <div className="flex items-center justify-between text-sm text-slate-600">
-                <button type="button" onClick={() => setStep('phone')} className="text-miraa-500 hover:underline">
-                  Edit phone
-                </button>
-                <button
-                  onClick={() => {
-                    setIsNewUser(true);
-                    submitOtp();
-                  }}
-                  className="text-miraa-500 hover:underline"
-                >
-                  I am new
-                </button>
+            <div className="mt-8 space-y-6">
+              <div className="grid grid-cols-4 gap-3">
+                {otp.map((value, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    maxLength={1}
+                    value={value}
+                    onChange={(event) => {
+                      const nextOtp = [...otp];
+                      nextOtp[index] = event.target.value.replace(/[^0-9]/g, '');
+                      setOtp(nextOtp);
+                    }}
+                    className="h-16 w-full rounded-3xl border border-slate-200 bg-slate-50 text-center text-2xl font-bold text-slate-900 outline-none focus:border-emerald-500"
+                  />
+                ))}
               </div>
               <button
-                onClick={submitOtp}
-                disabled={otp.length < 4}
-                className="w-full rounded-3xl bg-miraa-500 px-4 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-slate-400"
+                onClick={handleVerifyOtp}
+                disabled={otpValue.length < 4}
+                className="w-full rounded-3xl bg-emerald-600 px-5 py-4 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
               >
-                Verify OTP
+                Verify & Login
               </button>
             </div>
           )}
 
-          {step === 'profile' && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700">Full name</label>
+          {step === 'role' && (
+            <div className="mt-8 space-y-6">
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-slate-700">Name</label>
                 <input
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Jane Wanjiku"
-                  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900 outline-none transition focus:border-miraa-500 focus:ring-2 focus:ring-miraa-100"
+                  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-base text-slate-900 outline-none"
                 />
               </div>
-              <div>
+              <div className="space-y-4">
                 <label className="block text-sm font-medium text-slate-700">Location</label>
                 <input
                   value={location}
                   onChange={(event) => setLocation(event.target.value)}
                   placeholder="Meru"
-                  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-base text-slate-900 outline-none transition focus:border-miraa-500 focus:ring-2 focus:ring-miraa-100"
+                  className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-base text-slate-900 outline-none"
                 />
               </div>
-              <div>
-                <p className="mb-3 text-sm font-semibold text-slate-700">I am a</p>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {roles.map((item) => (
-                    <button
-                      key={item.value}
-                      type="button"
-                      onClick={() => setRole(item.value)}
-                      className={`rounded-3xl border p-4 text-left transition ${
-                        role === item.value ? 'border-miraa-500 bg-miraa-50' : 'border-slate-200 bg-slate-50'
-                      }`}
-                    >
-                      <p className="text-base font-semibold text-slate-900">{item.label}</p>
-                      <p className="mt-1 text-sm text-slate-600">{item.description}</p>
-                    </button>
-                  ))}
-                </div>
+              <div className="grid gap-4">
+                {roleCards.map((item) => (
+                  <button
+                    key={item.value}
+                    onClick={() => setSelectedRole(item.value)}
+                    className={`flex items-center gap-4 rounded-3xl border p-5 text-left transition ${
+                      selectedRole === item.value ? 'border-emerald-500 bg-emerald-50 shadow-sm' : 'border-slate-200 bg-white hover:border-emerald-200'
+                    }`}
+                  >
+                    <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-100 text-emerald-600">{item.icon}</div>
+                    <div>
+                      <p className="font-semibold text-slate-900">{item.label}</p>
+                      <p className="mt-1 text-sm text-slate-500">{item.description}</p>
+                    </div>
+                  </button>
+                ))}
               </div>
               <button
-                onClick={submitProfile}
-                className="w-full rounded-3xl bg-miraa-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-miraa-400"
+                onClick={handleRoleChoice}
+                className="w-full rounded-3xl bg-emerald-600 px-5 py-4 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700"
               >
-                Complete Profile
+                Continue to MiraaLink
               </button>
             </div>
           )}
         </div>
-      </section>
+      </div>
     </main>
   );
 };

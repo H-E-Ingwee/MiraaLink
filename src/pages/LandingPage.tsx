@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ArrowUpRight, ShoppingCart, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
