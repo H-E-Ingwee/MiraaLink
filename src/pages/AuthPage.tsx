@@ -29,7 +29,8 @@ const AuthPage = () => {
   const setUser = useAuthStore((state) => state.setUser);
   const navigate = useNavigate();
 
-  const isPhoneValid = useMemo(() => /^\+?2547\d{8}$/.test(phone), [phone]);
+  const normalizedPhone = phone.replace(/\D/g, '');
+  const isPhoneValid = useMemo(() => /^7\d{8}$/.test(normalizedPhone), [normalizedPhone]);
   const otpValue = otp.join('');
 
   const handleSendOtp = () => {
@@ -45,7 +46,7 @@ const AuthPage = () => {
   const handleRoleChoice = () => {
     const profile = {
       id: `user-${Date.now()}`,
-      phone,
+      phone: `+254${normalizedPhone}`,
       fullName: name || (selectedRole === 'FARMER' ? 'John Mutisya' : 'Sarah Kendi'),
       role: selectedRole,
       location: location || (selectedRole === 'FARMER' ? 'Maua, Meru' : 'Nairobi'),
