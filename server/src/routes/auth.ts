@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { z } from 'zod';
+import z from 'zod';
 import { users } from '../data/mock.js';
 import { v4 as uuidv4 } from 'uuid';
 

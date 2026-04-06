@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { z } from 'zod';
+import z from 'zod';
 import { listings, orders } from '../data/mock.js';
 import { v4 as uuidv4 } from 'uuid';
 const router = Router();
@@ -15,7 +15,7 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
     const parsed = createOrderSchema.safeParse(req.body);
     if (!parsed.success) {
-        return res.status(400).json({ error: parsed.error.format() });
+        return res.status(400).json({ error: parsed.error.errors });
     }
     const listing = listings.find((item) => item.id === parsed.data.listingId);
     if (!listing) {

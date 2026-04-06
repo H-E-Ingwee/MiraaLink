@@ -1,5 +1,5 @@
 ﻿import { Router } from 'express';
-import { z } from 'zod';
+import z from 'zod';
 import { listings } from '../data/mock.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -12,8 +12,8 @@ const createListingSchema = z.object({
   price: z.number().positive(),
   qty: z.number().positive(),
   location: z.string(),
-  verified: z.boolean().default(false),
-  img: z.string().default('🌿')
+  verified: z.boolean().optional(),
+  img: z.string().optional()
 });
 
 router.get('/', (req, res) => {
@@ -39,12 +39,14 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   const result = createListingSchema.safeParse(req.body);
   if (!result.success) {
-    return res.status(400).json({ error: 'Invalid listing payload', details: result.error.format() });
+    return res.status(400).json({ error: 'Invalid listing payload', details: result.error.errors });
   }
 
   const newListing = {
     id: uuidv4(),
-    status: 'AVAILABLE',
+    status: 'AVAILABLE' as const,
+    verified: result.data.verified ?? false,
+    img: result.data.img ?? '🌿',
     ...result.data
   };
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { z } from 'zod';
+import z from 'zod';
 import { listings, orders } from '../data/mock.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   const parsed = createOrderSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ error: parsed.error.format() });
+    return res.status(400).json({ error: parsed.error.errors });
   }
 
   const listing = listings.find((item) => item.id === parsed.data.listingId);
@@ -38,7 +38,7 @@ router.post('/', (req, res) => {
   const order = {
     id: uuidv4(),
     totalPrice: parsed.data.quantity * listing.price,
-    status: 'PENDING',
+    status: 'PENDING' as const,
     ...parsed.data
   };
   orders.push(order);
