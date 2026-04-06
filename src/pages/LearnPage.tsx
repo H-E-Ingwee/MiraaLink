@@ -1,32 +1,33 @@
+import { Play } from 'lucide-react';
+import { MOCK_LEARN_MODULES } from '../data/mock';
+
 const LearnPage = () => {
   return (
     <main className="pb-28 pt-6 px-4 sm:px-6">
-      <section className="space-y-5">
-        <div className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
-          <h1 className="text-xl font-semibold text-slate-900">Learn</h1>
-          <p className="mt-2 text-sm text-slate-600">Training videos for sustainable farming and better yields.</p>
+      <section className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">Soma</p>
+            <h1 className="mt-2 text-2xl font-semibold text-slate-900">Training modules</h1>
+          </div>
+          <p className="text-sm text-slate-600">Learn sustainable farming in short, video-friendly lessons.</p>
         </div>
+      </section>
 
-        <div className="space-y-4">
-          <article className="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <div className="flex items-center justify-between">
+      <section className="mt-6 space-y-4">
+        {MOCK_LEARN_MODULES.map((module) => (
+          <article key={module.id} className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-base font-semibold text-slate-900">How to save water during droughts</p>
-                <p className="mt-1 text-sm text-slate-600">Video guide for smart irrigation on the farm.</p>
+                <h2 className="text-lg font-semibold text-slate-900">{module.title}</h2>
+                <p className="mt-2 text-sm text-slate-600">{module.category} • {module.duration}</p>
               </div>
-              <span className="rounded-full bg-miraa-500 px-3 py-1 text-xs font-semibold text-white">Video</span>
+              <button className="inline-flex items-center gap-2 rounded-3xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                <Play size={16} /> Watch
+              </button>
             </div>
           </article>
-          <article className="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-base font-semibold text-slate-900">Identifying common Miraa pests</p>
-                <p className="mt-1 text-sm text-slate-600">Learn the signs and protect your harvest.</p>
-              </div>
-              <span className="rounded-full bg-miraa-500 px-3 py-1 text-xs font-semibold text-white">Video</span>
-            </div>
-          </article>
-        </div>
+        ))}
       </section>
     </main>
   );
